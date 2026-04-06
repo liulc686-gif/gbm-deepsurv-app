@@ -1,0 +1,9 @@
+streamlit
+pandas
+numpy
+torch
+joblib
+torchtuples
+plotly
+pycox
+scikit-learn
