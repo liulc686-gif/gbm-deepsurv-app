@@ -8,3 +8,4 @@ torchtuples
 plotly
 pycox
 scikit-learn
+matplotlib
