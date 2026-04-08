@@ -515,14 +515,7 @@ with left_col:
 
     predict_btn = st.button("Predict")
 
-    st.markdown(
-        """
-        <div class="small-help">
-        The current app uses the exact column lists and category options saved from the training artifacts.
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+
 
 # =========================
 # 8. Prediction
@@ -634,17 +627,3 @@ with right_col:
         unsafe_allow_html=True,
     )
     st.markdown('</div>', unsafe_allow_html=True)
-
-    with st.expander("Diagnostics"):
-        st.write("Input dataframe", st.session_state.patient_df)
-        st.write("Transformed feature shape", st.session_state.x_shape)
-        st.write("Predicted risk score", st.session_state.risk_score)
-        st.write("Baseline hazards summary")
-        st.write(
-            {
-                "length": int(len(baseline_hazards_loaded)),
-                "nonzero_count": int((baseline_hazards_loaded != 0).sum()),
-                "min": float(baseline_hazards_loaded.min()),
-                "max": float(baseline_hazards_loaded.max()),
-            }
-        )
