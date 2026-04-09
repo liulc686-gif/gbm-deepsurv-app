@@ -623,20 +623,20 @@ with right_col:
             unsafe_allow_html=True,
         )
 
-    st.markdown('<div class="instruction-box">', unsafe_allow_html=True)
-    st.markdown('<div class="instructions-title"><h3>Instructions</h3></div>', unsafe_allow_html=True)
-    st.markdown(
-        """
+st.markdown(
+    """
+    <div class="instruction-box">
+        <div class="instructions-title"><h3>Instructions</h3></div>
         <div class="instructions-text">
-        1. Select the patient's information in the left panel.<br>
-        2. Click <strong>Predict</strong> to generate the survival prediction.<br>
-        3. Review the predicted survival curve and estimated survival probabilities.
+            1. Select the patient's information in the left panel.<br>
+            2. Click <strong>Predict</strong> to generate the survival prediction.<br>
+            3. Review the predicted survival curve and estimated survival probabilities.
         </div>
         <div style="height: 10px;"></div>
         <div class="note-text">
             <strong>Note:</strong> This model is intended for research use only, and predictive accuracy is not guaranteed.
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
