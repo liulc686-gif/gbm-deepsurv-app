@@ -1,4 +1,3 @@
-
 from pathlib import Path
 import os
 
@@ -39,7 +38,7 @@ if not ARTIFACT_DIR.exists():
     ARTIFACT_DIR = BASE_DIR
 
 st.set_page_config(
-    page_title="DeepSurv-based Survival Prediction Model for Adult Glioma",
+    page_title="DeepSurv-based Survival Prediction Model for Glioblastoma",
     layout="wide",
 )
 
@@ -482,9 +481,28 @@ except Exception as e:
 # =========================
 # 6. Page title
 # =========================
-st.title("DeepSurv-based Survival Prediction Model for Adult Glioma")
+st.title("DeepSurv-based Survival Prediction Model for Glioblastoma")
 
 left_col, right_col = st.columns([1.0, 2.15])
+
+# Hidden default values for temporary demo figure
+default_year = (
+    category_options["Year"][0]
+    if "Year" in category_options and len(category_options["Year"]) > 0
+    else "Unknown"
+)
+
+default_t_site = (
+    category_options["T_site"][0]
+    if "T_site" in category_options and len(category_options["T_site"]) > 0
+    else "Unknown"
+)
+
+default_histologic = (
+    category_options["Histologic"][0]
+    if "Histologic" in category_options and len(category_options["Histologic"]) > 0
+    else "Unknown"
+)
 
 # =========================
 # 7. Left input panel
@@ -493,28 +511,23 @@ with left_col:
     st.markdown('<div class="panel-title">Patient Input</div>', unsafe_allow_html=True)
 
     age = st.number_input("Age (years)", min_value=18.0, max_value=120.0, value=66.0, step=1.0)
-    income = st.number_input("Household income (USD)", min_value=0.0, value=50000.0, step=1000.0)
-
-    sex = st.selectbox("Sex", category_options["Sex"])
-
-    default_year = (
-        category_options["Year"][0]
-        if "Year" in category_options and len(category_options["Year"]) > 0
-        else "Unknown"
+    income = st.number_input(
+        "County-level median household income (USD)",
+        min_value=0.0,
+        value=50000.0,
+        step=1000.0
     )
 
+    sex = st.selectbox("Sex", category_options["Sex"])
     race = st.selectbox("Race", category_options["Race"])
     laterality = st.selectbox("Laterality", category_options["Laterality"])
     eor = st.selectbox("Extent of resection", category_options["EOR"])
     radiotherapy = st.selectbox("Radiotherapy", category_options["Radiotherapy"])
     marital = st.selectbox("Marital status", category_options["Marital"])
     chemotherapy = st.selectbox("Chemotherapy", category_options["Chemotherapy"])
-    t_site = st.selectbox("Tumor site", category_options["T_site"])
-    histologic = st.selectbox("Histologic subtype", category_options["Histologic"])
-    extension = st.selectbox("Extension", category_options["Extension"])
+    extension = st.selectbox("Tumor extension", category_options["Extension"])
 
     predict_btn = st.button("Predict")
-
 
 
 # =========================
@@ -535,8 +548,8 @@ if predict_btn or not st.session_state.pred_done:
             radiotherapy,
             marital,
             chemotherapy,
-            t_site,
-            histologic,
+            default_t_site,
+            default_histologic,
             extension,
             income,
         )
@@ -576,15 +589,15 @@ with right_col:
         <div class="metric-row">
             <div class="metric-card">
                 <div class="metric-value">{p6 * 100:.1f}%</div>
-                <div class="metric-label">0.5-year survival</div>
+                <div class="metric-label">6-month survival</div>
             </div>
             <div class="metric-card">
                 <div class="metric-value">{p12 * 100:.1f}%</div>
-                <div class="metric-label">1-year survival</div>
+                <div class="metric-label">12-month survival</div>
             </div>
             <div class="metric-card">
                 <div class="metric-value">{p24 * 100:.1f}%</div>
-                <div class="metric-label">2-year survival</div>
+                <div class="metric-label">24-month survival</div>
             </div>
         </div>
         """,
