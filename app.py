@@ -70,22 +70,17 @@ st.markdown(
         margin-bottom: 0.95rem;
     }
 
-    .metric-row {
-        display: flex;
-        gap: 14px;
-        flex-wrap: wrap;
-        margin-bottom: 10px;
-    }
-
     .metric-card {
-        flex: 1;
-        min-width: 180px;
         background: linear-gradient(180deg, #fbfdff 0%, #f5f9fc 100%);
         border: 1px solid #d6e4f0;
         border-radius: 14px;
         padding: 0.95rem 0.8rem;
         text-align: center;
         box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .metric-value {
@@ -105,32 +100,33 @@ st.markdown(
     .instruction-box {
         background: #fcfdff;
         border: 1px solid #d8e3ec;
-        border-radius: 12px;
-        padding: 0.9rem 0.95rem 0.85rem 0.95rem;
-        margin-top: 0.2rem;
+        border-radius: 14px;
+        padding: 1rem 1.05rem 0.95rem 1.05rem;
+        margin-top: 0.15rem;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
     }
 
     .instructions-title {
-        margin-bottom: 0.55rem;
+        margin-bottom: 0.45rem;
     }
 
     .instructions-title h3 {
-        font-size: 1.35rem;
+        font-size: 1.2rem;
         font-weight: 700;
         color: #1f2d3d;
         margin: 0;
     }
 
     .instructions-text {
-        font-size: 0.98rem;
-        line-height: 1.75;
+        font-size: 0.97rem;
+        line-height: 1.7;
         color: #334e68;
     }
 
     .note-text {
         color: #5b6b7a;
-        font-size: 0.95rem;
-        line-height: 1.65;
+        font-size: 0.93rem;
+        line-height: 1.6;
     }
 
     .small-help {
@@ -153,13 +149,15 @@ st.markdown(
     }
 
     div.stButton > button:first-child {
-        width: 100%;
+        width: 180px;
+        min-width: 180px;
         border-radius: 10px;
         border: 1px solid #c62828;
         background-color: #d32f2f;
         color: #ffffff;
         font-weight: 700;
-        padding: 0.58rem 1rem;
+        padding: 0.62rem 1rem;
+        display: inline-block;
     }
 
     div.stButton > button:first-child:hover {
@@ -447,9 +445,8 @@ except Exception as e:
 # =========================
 st.title("DeepSurv-based Survival Prediction Model for Glioblastoma")
 
-left_col, right_col = st.columns([1.0, 2.15])
+left_col, right_col = st.columns([1.0, 2.35])
 
-# Hidden default values for temporary demo figure
 default_year = (
     category_options["Year"][0]
     if "Year" in category_options and len(category_options["Year"]) > 0
@@ -543,47 +540,60 @@ with right_col:
     fig = make_survival_figure(curve_series)
     st.pyplot(fig)
 
-    st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
     st.markdown('<div class="result-section-title">Predicted Probabilities</div>', unsafe_allow_html=True)
 
-    prob_col, info_col = st.columns([2.4, 1.2])
+    c1, c2, c3 = st.columns(3)
 
-    with prob_col:
+    with c1:
         st.markdown(
             f"""
-            <div class="metric-row">
-                <div class="metric-card">
-                    <div class="metric-value">{p6 * 100:.1f}%</div>
-                    <div class="metric-label">6-month survival</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-value">{p12 * 100:.1f}%</div>
-                    <div class="metric-label">12-month survival</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-value">{p24 * 100:.1f}%</div>
-                    <div class="metric-label">24-month survival</div>
-                </div>
+            <div class="metric-card">
+                <div class="metric-value">{p6 * 100:.1f}%</div>
+                <div class="metric-label">6-month survival</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with info_col:
+    with c2:
         st.markdown(
-            """
-            <div class="instruction-box">
-                <div class="instructions-title"><h3>Instructions</h3></div>
-                <div class="instructions-text">
-                    1. Enter the patient's information.<br>
-                    2. Click <strong>Predict</strong>.<br>
-                    3. Review the survival curve and predicted probabilities.
-                </div>
-                <div style="height: 10px;"></div>
-                <div class="note-text">
-                    <strong>Note:</strong> For research use only.
-                </div>
+            f"""
+            <div class="metric-card">
+                <div class="metric-value">{p12 * 100:.1f}%</div>
+                <div class="metric-label">12-month survival</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
+
+    with c3:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-value">{p24 * 100:.1f}%</div>
+                <div class="metric-label">24-month survival</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+
+    st.markdown(
+        """
+        <div class="instruction-box">
+            <div class="instructions-title"><h3>Instructions</h3></div>
+            <div class="instructions-text">
+                1. Enter the patient's information.<br>
+                2. Click <strong>Predict</strong>.<br>
+                3. Review the survival curve and predicted probabilities.
+            </div>
+            <div style="height: 10px;"></div>
+            <div class="note-text">
+                <strong>Note:</strong> For research use only.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
