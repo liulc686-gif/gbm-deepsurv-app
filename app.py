@@ -585,13 +585,13 @@ with right_col:
         <div class="instruction-box">
             <div class="instructions-title"><h3>Instructions</h3></div>
             <div class="instructions-text">
-                1. Enter the patient's information.<br>
+                1. Select the patient's information in the left panel.<br>
                 2. Click <strong>Predict</strong>.<br>
                 3. Review the survival curve and predicted probabilities.
             </div>
             <div style="height: 10px;"></div>
             <div class="note-text">
-                <strong>Note:</strong> For research use only.
+                <strong>Note:</strong> This model is intended for research use only, and predictive accuracy is not guaranteed.
             </div>
         </div>
         """,
