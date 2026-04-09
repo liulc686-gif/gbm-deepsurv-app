@@ -19,20 +19,6 @@ from pycox.models import CoxPH
 # =========================
 BASE_DIR = Path(__file__).resolve().parent
 
-# Prefer the folder structure:
-#   repo/
-#   ├─ app.py
-#   ├─ requirements.txt
-#   └─ deepsurv_artifacts/
-#      ├─ preprocessor.pkl
-#      ├─ numeric_cols.pkl
-#      ├─ categorical_cols.pkl
-#      ├─ income_quantiles.pkl
-#      ├─ baseline_hazards.pkl
-#      ├─ category_options.pkl
-#      └─ deepsurv_net.pt
-#
-# But also allow all files to live next to app.py as a fallback.
 ARTIFACT_DIR = BASE_DIR / "deepsurv_artifacts"
 if not ARTIFACT_DIR.exists():
     ARTIFACT_DIR = BASE_DIR
@@ -116,24 +102,12 @@ st.markdown(
         font-weight: 600;
     }
 
-    .median-box {
-        background: #fafbfc;
-        border: 1px solid #dbe5ee;
-        border-left: 4px solid #9fb3c8;
-        padding: 0.8rem 0.95rem;
-        border-radius: 10px;
-        margin-top: 1rem;
-        margin-bottom: 1.2rem;
-        color: #334e68;
-        font-size: 1rem;
-    }
-
     .instruction-box {
         background: #fcfdff;
         border: 1px solid #d8e3ec;
         border-radius: 12px;
-        padding: 1.15rem 1.15rem 1rem 1.15rem;
-        margin-top: 1.35rem;
+        padding: 0.9rem 0.95rem 0.85rem 0.95rem;
+        margin-top: 0.2rem;
     }
 
     .instructions-title {
@@ -141,22 +115,22 @@ st.markdown(
     }
 
     .instructions-title h3 {
-        font-size: 1.45rem;
+        font-size: 1.35rem;
         font-weight: 700;
         color: #1f2d3d;
         margin: 0;
     }
 
     .instructions-text {
-        font-size: 1.05rem;
-        line-height: 1.85;
+        font-size: 0.98rem;
+        line-height: 1.75;
         color: #334e68;
     }
 
     .note-text {
         color: #5b6b7a;
-        font-size: 1rem;
-        line-height: 1.75;
+        font-size: 0.95rem;
+        line-height: 1.65;
     }
 
     .small-help {
@@ -216,7 +190,6 @@ def load_assets():
     baseline_hazards = _load_pickle("baseline_hazards.pkl")
     category_options = _load_pickle("category_options.pkl")
 
-    # Friendly display labels for the UI
     for key in ["Radiotherapy", "Chemotherapy"]:
         if key in category_options:
             category_options[key] = [
@@ -238,7 +211,6 @@ def load_assets():
     dummy_df = pd.DataFrame([dummy_row])[ordered_cols]
     in_features = preprocessor.transform(dummy_df).shape[1]
 
-    # Match the architecture from the working local app
     net = tt.practical.MLPVanilla(
         in_features=in_features,
         num_nodes=[128, 64, 32],
@@ -256,7 +228,6 @@ def load_assets():
     model.net.to(torch.device("cpu"))
     model.net.eval()
 
-    # Make the baseline robust across pycox versions
     if isinstance(baseline_hazards, pd.Series):
         baseline_hazards = baseline_hazards.astype(float).sort_index()
         baseline_cumulative_hazards = baseline_hazards.cumsum()
@@ -277,14 +248,12 @@ def load_assets():
         baseline_hazards,
     )
 
-
 # =========================
 # 4. Helper functions
 # =========================
 def calc_income_group(income, quantiles):
     bins = np.array(quantiles, dtype=float).copy()
 
-    # Make sure bins are strictly increasing
     for i in range(1, len(bins)):
         if bins[i] <= bins[i - 1]:
             bins[i] = bins[i - 1] + 1e-6
@@ -303,7 +272,6 @@ def calc_income_group(income, quantiles):
 
     return int(group)
 
-
 def build_patient_df(
     age,
     sex,
@@ -321,7 +289,6 @@ def build_patient_df(
 ):
     income_group = calc_income_group(income, income_quantiles)
 
-    # Convert UI "No" back to the original training categories
     radiotherapy_model_value = "No/Unknown" if radiotherapy == "No" else radiotherapy
     chemotherapy_model_value = "No/Unknown" if chemotherapy == "No" else chemotherapy
 
@@ -345,7 +312,6 @@ def build_patient_df(
 
     ordered_cols = numeric_cols + categorical_cols
     return pd.DataFrame([row])[ordered_cols]
-
 
 def predict_survival(patient_df):
     x = preprocessor.transform(patient_df[numeric_cols + categorical_cols]).astype("float32")
@@ -404,7 +370,6 @@ def predict_survival(patient_df):
 
     return curve_series, p6, p12, p24, median_survival_time, x.shape, risk_score
 
-
 def make_survival_figure(curve_series):
     x_vals = np.asarray(curve_series.index, dtype=float)
     y_vals = np.asarray(curve_series.values, dtype=float)
@@ -459,7 +424,6 @@ def make_survival_figure(curve_series):
 
     plt.tight_layout()
     return fig
-
 
 # =========================
 # 5. Load everything
@@ -529,7 +493,6 @@ with left_col:
 
     predict_btn = st.button("Predict")
 
-
 # =========================
 # 8. Prediction
 # =========================
@@ -576,67 +539,51 @@ with right_col:
     p6 = st.session_state.p6
     p12 = st.session_state.p12
     p24 = st.session_state.p24
-    median_survival_time = st.session_state.median_survival_time
 
     fig = make_survival_figure(curve_series)
     st.pyplot(fig)
 
-    st.markdown("<div style='height: 22px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
     st.markdown('<div class="result-section-title">Predicted Probabilities</div>', unsafe_allow_html=True)
 
-    st.markdown(
-        f"""
-        <div class="metric-row">
-            <div class="metric-card">
-                <div class="metric-value">{p6 * 100:.1f}%</div>
-                <div class="metric-label">6-month survival</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">{p12 * 100:.1f}%</div>
-                <div class="metric-label">12-month survival</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">{p24 * 100:.1f}%</div>
-                <div class="metric-label">24-month survival</div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    prob_col, info_col = st.columns([2.4, 1.2])
 
-    if pd.isna(median_survival_time):
-        st.markdown(
-            """
-            <div class="median-box">
-                <strong>Median Survival Time:</strong> Not reached
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    else:
+    with prob_col:
         st.markdown(
             f"""
-            <div class="median-box">
-                <strong>Median Survival Time:</strong> {median_survival_time:.2f} months
+            <div class="metric-row">
+                <div class="metric-card">
+                    <div class="metric-value">{p6 * 100:.1f}%</div>
+                    <div class="metric-label">6-month survival</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">{p12 * 100:.1f}%</div>
+                    <div class="metric-label">12-month survival</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">{p24 * 100:.1f}%</div>
+                    <div class="metric-label">24-month survival</div>
+                </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-st.markdown(
-    """
-    <div class="instruction-box">
-        <div class="instructions-title"><h3>Instructions</h3></div>
-        <div class="instructions-text">
-            1. Select the patient's information in the left panel.<br>
-            2. Click <strong>Predict</strong> to generate the survival prediction.<br>
-            3. Review the predicted survival curve and estimated survival probabilities.
-        </div>
-        <div style="height: 10px;"></div>
-        <div class="note-text">
-            <strong>Note:</strong> This model is intended for research use only, and predictive accuracy is not guaranteed.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+    with info_col:
+        st.markdown(
+            """
+            <div class="instruction-box">
+                <div class="instructions-title"><h3>Instructions</h3></div>
+                <div class="instructions-text">
+                    1. Enter the patient's information.<br>
+                    2. Click <strong>Predict</strong>.<br>
+                    3. Review the survival curve and predicted probabilities.
+                </div>
+                <div style="height: 10px;"></div>
+                <div class="note-text">
+                    <strong>Note:</strong> For research use only.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
